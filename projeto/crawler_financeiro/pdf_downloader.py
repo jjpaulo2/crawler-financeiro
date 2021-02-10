@@ -136,18 +136,18 @@ def download_pdf(proccess: dict) -> dict:
         return proccess
 
 
-def download_pdfs(proccess_list: list) -> list:
+def download_pdfs(proccess_list: list, quant_download: int) -> list:
     """
     Função que itera a função `download_pdf` sobre uma lista de processos.
 
     Parameters:
         proccess_list (dict): lista de dicionários de processos já extraído do portal da SUSEP
+        quant_download (int): quantidade de PDFs que serão baixados
 
     Returns:
         list: lista com os números dos processos baixados
     """
     i = 1 # CONTADOR DE PDFS BAIXADOS
-    quant_download = 3 # LIMITA A QUANTIDADE DE PDFS BAIXADOS
     downloaded_proccess = [] # ARMAZENA O NÚMERO DOS PROCESSOS BAIXADOS
     print(f"*     Baixando os primeiros {quant_download} arquivos de um total de {len(proccess_list)}.")
 

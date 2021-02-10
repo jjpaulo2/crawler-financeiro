@@ -1,27 +1,32 @@
-from . import get_json, crawler
+from . import json_downloader
+from . import pdf_downloader
 
-print("""
-================================
-OBTENDO DADOS DO PORTAL DA SUSEP
-================================
-Author: @jjpaulo2
------------------
+from .colors import ANSIColors
+
+print(f"""
+==================================
+ OBTENDO DADOS DO PORTAL DA SUSEP
+==================================
+ Author: {ANSIColors.header('@jjpaulo2')}
+-------------------
 """)
 
 try:
-    print("#1.   OBTENDO JSON INICIAL")
+    print(f"{ANSIColors.okgreen('#1.')}   OBTENDO JSON INICIAL")
     print('---')
-    data = get_json.download_starter_json()
+    data = json_downloader.download_starter_json()
 
-    print("#2.   FILTRANDO DADOS")
+    print(f"{ANSIColors.okgreen('#2.')}   FILTRANDO DADOS")
     print('---')
-    filtered_data = get_json.filter_starter_json(data, 'PLANO DE PREVIDÊNCIA')
+    filtered_data = json_downloader.filter_starter_json(data, 'PLANO DE PREVIDÊNCIA')
 
-    print("#3.   BAIXANDO PDFS")
+    print(f"{ANSIColors.okgreen('#3.')}   BAIXANDO PDFS")
     print('---')
-    crawler.download_pdfs(filtered_data)
+    pdf_downloader.download_pdfs(filtered_data)
 
 except KeyboardInterrupt:
-    print('\n')
-    print('Programa encerrado pelo usuário.')
-    print('')
+    print()
+    print('==================================')
+    print(' PROGRAMA ENCERRADO PELO USUÁRIO.')
+    print('==================================')
+    print()

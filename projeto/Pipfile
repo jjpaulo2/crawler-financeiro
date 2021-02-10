@@ -6,9 +6,12 @@ name = "pypi"
 [packages]
 requests = "*"
 selenium = "*"
+pillow = "*"
+pytesseract = "*"
+pdf2image = "*"
 
 [dev-packages]
 pylint = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

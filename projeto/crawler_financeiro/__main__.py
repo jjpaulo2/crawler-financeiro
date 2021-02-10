@@ -9,6 +9,7 @@ O procedimento executado é:
 """
 from . import json_downloader
 from . import pdf_downloader
+from . import pdf_reader
 
 from .ansi_colors import ANSIColors
 
@@ -32,6 +33,10 @@ try:
     print(f"{ANSIColors.okgreen('#3.')}   BAIXANDO PDFS")
     print('---')
     pdf_downloader.download_pdfs(filtered_data)
+
+    print(f"{ANSIColors.okgreen('#4.')}   EXTRAINDO TEXTO DOS PDFS")
+    print('---')
+    pdf_reader.proccess_pdf_folder()
 
 except KeyboardInterrupt:
     print()

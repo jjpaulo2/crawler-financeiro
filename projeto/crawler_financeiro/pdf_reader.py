@@ -105,7 +105,7 @@ def verify_file_exists(file_name: str) -> bool:
     Parameters:
         file_name (str): nome do arquivo que será verificado
     '''
-    path = 'files/pdfs/'
+    path = 'files/pdfs/txt/'
     exists = False
 
     try:
@@ -150,4 +150,4 @@ def proccess_pdf_folder():
         counter += 1
 
     sleep(0.5)
-    print('*     Texto extraído com sucesso de todos os arquivos.')
+    print('*     Texto extraído com sucesso de todos os arquivos.\n')

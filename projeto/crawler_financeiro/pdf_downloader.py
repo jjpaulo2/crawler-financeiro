@@ -8,7 +8,85 @@ from time import sleep
 
 import requests
 
-def download_pdf(proccess: dict):
+# *
+# Funções que realizam etapas do acesso ao site da SUSEP
+# *
+
+HOSTNAME = 'https://www2.susep.gov.br' # ENDEREÇO DO SITE DA SUSEP
+
+def start_webdriver() -> webdriver.Chrome:
+    '''
+    Função que inicializa o Webdriver e acessa o site da SUSEP.
+
+    Returns:
+        webdriver.Chrome: objeto de webdriver do Chrome que pode ser utilizado
+    '''
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless") # INICIALIZA O CHROME EM BACKGROUND
+
+    sleep(0.5)
+    # CARREGANDO SITE DE CONSULTA
+    driver = webdriver.Chrome(options=options)
+    driver.get(HOSTNAME + '/safe/menumercado/REP2/Produto.aspx/Consultar')
+    
+    return driver
+    
+
+def load_process_page(driver: webdriver.Chrome, process_number: str):
+    '''
+    Função que preenche o formulário com o número do processo.
+
+    Parameters:
+        driver (webdriver.Chrome): objeto de webdriver do Chrome
+        process_number (str): número do processo a ser consultado
+    '''
+    sleep(0.5)
+    search_box = driver.find_element_by_xpath('//input[@id="numeroProcesso"]')
+    search_box.clear()
+    search_box.send_keys(process_number)
+    search_box.send_keys(Keys.RETURN)
+
+
+def get_pdf_download_path(driver: webdriver.Chrome):
+    '''
+    Função que obtém o endereço de download do PDF de regulamento do processo.
+
+    Parameters:
+        driver (webdriver.Chrome): objeto de webdriver do Chrome
+    '''
+    sleep(0.5)
+    download_button = driver.find_element_by_xpath('//a[@class="linkDownloadRelatorio"]')
+
+    # RECORTA A STRING, DEIXANDO APENAS O CAMINHO PARA O ARQUIVO
+    download_path = download_button.get_attribute('onclick')[15:-1]
+
+    return download_path
+
+
+def get_process_status(driver: webdriver.Chrome) -> str:
+    '''
+    Função que obtém o status do processo.
+
+    Parameters:
+        driver (webdriver.Chrome): objeto de webdriver do Chrome
+
+    Returns:
+        str: valor do status mostrado no site
+    '''
+    sleep(0.5)
+
+    # OBTÉM A SITUAÇÃO DO PROCESSO
+    situation = driver.find_element_by_xpath('//div[contains(.//strong, "Situação do Produto:")]')
+    status = situation.text[20:]
+
+    return status
+
+
+# *
+# Funções que fazem o processo completo
+# *
+
+def download_pdf(proccess: dict) -> dict:
     """
     Função que acessa a página de download do arquivo, preenche o 
     campo com o número do processo e faz o download do arquivo
@@ -16,36 +94,30 @@ def download_pdf(proccess: dict):
 
     Parameters:
         proccess (dict): dicionário de um único processo já extraído do portal da SUSEP
+
+    Returns:
+        dict: dicionário do processo atualizado com o campo de status do processo
     """
-    file_name = proccess['numeroprocesso'].replace('.', '-').replace('/', '-') + '.pdf'
-    
+    process_number = proccess['numeroprocesso']
+    file_name = process_number.replace('.', '-').replace('/', '-') + '.pdf'
+
+    print('      Obtendo o status do processo.')
+    driver = start_webdriver()
+    load_process_page(driver, process_number)
+    proccess['status'] = get_process_status(driver)
+
     try:
         # VERIFICA SE O ARQUIVO JÁ EXISTE.
         with open('files/pdfs/' + file_name, 'r') as file:
+            driver.close()
+
             sleep(0.5)
             print('*     Arquivo encontrado.')
 
     except FileNotFoundError:
         # SE NÃO EXISTIR, BAIXA O DOCUMENTO E SALVA O ARQUIVO.
 
-        HOSTNAME = 'https://www2.susep.gov.br'
-
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless") # INICIALIZA O CHROME EM BACKGROUND
-
-        driver = webdriver.Chrome(options=options)
-        driver.get(HOSTNAME + '/safe/menumercado/REP2/Produto.aspx/Consultar')
-
-        search_box = driver.find_element_by_xpath('//input[@id="numeroProcesso"]')
-        search_box.clear()
-        search_box.send_keys(proccess['numeroprocesso'])
-        search_box.send_keys(Keys.RETURN)
-
-        sleep(1)
-        download_button = driver.find_element_by_xpath('//a[@class="linkDownloadRelatorio"]')
-        # RECORTA A STRING, DEIXANDO APENAS O CAMINHO PARA O ARQUIVO
-        download_path = download_button.get_attribute('onclick')[15:-1]
-        
+        download_path = get_pdf_download_path(driver)
         driver.close()
 
         file_bytes = requests.get(HOSTNAME + download_path)
@@ -59,17 +131,24 @@ def download_pdf(proccess: dict):
         else:
             # SENÃO, SERÁ LANÇADA UMA EXCEÇÃO DE CONEXÃO
             raise ConnectionError
+    
+    finally:
+        return proccess
 
 
-def download_pdfs(proccess_list: list):
+def download_pdfs(proccess_list: list) -> list:
     """
     Função que itera a função `download_pdf` sobre uma lista de processos.
 
     Parameters:
         proccess_list (dict): lista de dicionários de processos já extraído do portal da SUSEP
+
+    Returns:
+        list: lista com os números dos processos baixados
     """
     i = 1 # CONTADOR DE PDFS BAIXADOS
-    quant_download = 5 # LIMITA A QUANTIDADE DE PDFS BAIXADOS
+    quant_download = 3 # LIMITA A QUANTIDADE DE PDFS BAIXADOS
+    downloaded_proccess = [] # ARMAZENA O NÚMERO DOS PROCESSOS BAIXADOS
     print(f"*     Baixando os primeiros {quant_download} arquivos de um total de {len(proccess_list)}.")
 
     for proccess in proccess_list:
@@ -82,7 +161,9 @@ def download_pdfs(proccess_list: list):
             # O PRÓXIMO ARQUIVO.
 
             try:
-                download_pdf(proccess)
+                # BAIXA O PDF E RECEBE O NOVO DICT COM A SITUAÇÃO DO PROCESSO
+                new_proccess = download_pdf(proccess)
+                downloaded_proccess.append(new_proccess)
                 break
 
             except Exception:
@@ -101,3 +182,5 @@ def download_pdfs(proccess_list: list):
     
     sleep(0.5)
     print("*     Download encerrado com sucesso.\n")
+
+    return downloaded_proccess

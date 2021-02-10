@@ -6,12 +6,16 @@ O procedimento executado é:
     1. Faz o download dos JSONs com os dados iniciais. (`json_downloader.py`)
     2. Filtra os dados apenas para os valos interessados. (`json_downloader.py`)
     3. Utiliza os dados filtrados para fazer download dos PDFs com os regulamentos. (`pdf_downloader.py`)
+    4. Extrai o texto dos PDFs baixados. (`pdf_reader.py`)
 """
 from . import json_downloader
 from . import pdf_downloader
 from . import pdf_reader
+from . import generate_final_json
 
 from .ansi_colors import ANSIColors
+
+import json
 
 print(f"""
 ==================================
@@ -32,11 +36,15 @@ try:
 
     print(f"{ANSIColors.okgreen('#3.')}   BAIXANDO PDFS")
     print('---')
-    pdf_downloader.download_pdfs(filtered_data)
+    downloaded_processes = pdf_downloader.download_pdfs(filtered_data)
 
     print(f"{ANSIColors.okgreen('#4.')}   EXTRAINDO TEXTO DOS PDFS")
     print('---')
     pdf_reader.proccess_pdf_folder()
+
+    print(f"{ANSIColors.okgreen('#5.')}   GERANDO JSON FINAL COM OS DADOS EXTRAÍDOS")
+    print('---')
+    generate_final_json.generate_json_from_proccesses(downloaded_processes)
 
 except KeyboardInterrupt:
     print()

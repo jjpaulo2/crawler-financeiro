@@ -62,6 +62,7 @@ def main(proccess_quantity: int):
 
 
 # INICIALIZANDO O ARGPARSER PARA TRATAR ENTRADA DE LINHA DE COMANDO
+
 description = f"""
 ==================================
  OBTENDO DADOS DO PORTAL DA SUSEP
@@ -77,6 +78,7 @@ padrão de processos será 3.
 """
 
 parser = argparse.ArgumentParser(
+    prog='crawler_financeiro',
     description=description,
     formatter_class=argparse.RawTextHelpFormatter
     )

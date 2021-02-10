@@ -43,6 +43,7 @@ def download_pdf(proccess: dict):
 
         sleep(1)
         download_button = driver.find_element_by_xpath('//a[@class="linkDownloadRelatorio"]')
+        # RECORTA A STRING, DEIXANDO APENAS O CAMINHO PARA O ARQUIVO
         download_path = download_button.get_attribute('onclick')[15:-1]
         
         driver.close()
@@ -100,4 +101,3 @@ def download_pdfs(proccess_list: list):
     
     sleep(0.5)
     print("*     Download encerrado com sucesso.\n")
-

@@ -22,6 +22,7 @@ def get_pdfs() -> list:
     files_names = os.listdir(r'files/pdfs')
 
     def filter_func(string: str) -> bool:
+        # FILTRA APENAS ARQUIVOS TERMIDADOS COM .pdf
         return string.endswith('.pdf')
 
     files_names = list(filter(filter_func, files_names))
@@ -47,16 +48,19 @@ def extract_pages(file_name: str) -> int:
 
     sleep(0.5)
     print('      Lendo as páginas...')
+    # PREPARA O PDF PARA TER SUAS PÁGINAS SALVAS EM IMAGENS
     pages = convert_from_path(file, 200)
     
-    page_counter = 1
+    page_counter = 1 # CONTADOR DE PÁGINAS
 
     for page in pages:
+        # SALVA A PÁGINA COMO IMAGEM .jpg
         page_file = f'files/pdfs/tmp/page_{page_counter}.jpg'
         page.save(page_file, 'JPEG')
 
         page_counter += 1
 
+    page_counter -= 1
     return page_counter
 
 def get_pages_text(page_quantity: int, txt_file_output_name: str):
@@ -71,13 +75,13 @@ def get_pages_text(page_quantity: int, txt_file_output_name: str):
     sleep(0.5)
     print(f'      Extraindo texto para o arquivo "{txt_file_output_name}"')
 
-    page_quantity -= 1
-
     txt_file_output_path = f'files/pdfs/txt/{txt_file_output_name}'
     with open(txt_file_output_path, 'a') as output_txt:
         
         for i in range(1, page_quantity + 1):
             page_file = f'files/pdfs/tmp/page_{i}.jpg'
+            
+            # MÉTODO QUE EXTRAI O TEXTO DA IMAGEM
             text = pytesseract.image_to_string(Image.open(page_file))
             output_txt.write(text)
 
@@ -88,11 +92,11 @@ def clean_tmp_folder():
     sleep(0.5)
     print('*     Limpando arquivos temporários.')
 
-    path = 'files/pdfs/tmp'
+    path = 'files/pdfs/tmp/'
     files = os.listdir(path)
 
     for file in files:
-        os.remove(path + '/' + file)
+        os.remove(path + file)
 
 def verify_file_exists(file_name: str) -> bool:
     '''
@@ -130,6 +134,7 @@ def proccess_pdf_folder():
     counter = 1
     for file in pdf_files:
         print(f'({counter}/{len(pdf_files)}) Processando "{file}"')
+        # REMOVE A EXTENSÃO `.pdf` E ADICIONA `.txt`
         txt_output_name = file[:-4] + '.txt'
         
         if not verify_file_exists(txt_output_name):

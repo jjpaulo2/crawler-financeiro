@@ -4,11 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
-selenium = "*"
-pillow = "*"
-pytesseract = "*"
-pdf2image = "*"
+requests = "2.25.1"
+selenium = "3.141.0"
+pillow = "8.1.0"
+pytesseract = "0.3.7"
+pdf2image = "1.14.0"
 
 [dev-packages]
 pylint = "*"

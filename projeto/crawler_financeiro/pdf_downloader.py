@@ -23,6 +23,7 @@ def start_webdriver() -> webdriver.Chrome:
     '''
     options = webdriver.ChromeOptions()
     options.add_argument("--headless") # INICIALIZA O CHROME EM BACKGROUND
+    options.add_argument("--no-sandbox") # INICIALIZA EM MODO DE PRODUÇÃO
 
     sleep(0.5)
     # CARREGANDO SITE DE CONSULTA
@@ -166,10 +167,11 @@ def download_pdfs(proccess_list: list, quant_download: int) -> list:
                 downloaded_proccess.append(new_proccess)
                 break
 
-            except Exception:
+            except Exception as exc:
                 # SE OCORRER ERRO NO DOWNLOAD, SERÁ EXIBIDA UMA MENSAGEM DE ERRO
                 # E A QUANTIDADE DE TENTATIVAS SERÁ INCREMENTADA.
                 print('*     Erro inesperado ao tentar baixar o arquivo. Tentando novamente.')
+                print('      Descição do erro: ' + str(exc))
                 tentativas += 1
 
         else:

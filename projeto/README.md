@@ -8,7 +8,42 @@ O módulo é capaz de realizar todas as tarefas pedidas no objetivo do desafio. 
 - `taxa de carregamento`
 - `período de carência`
 
-### Dependências
+### Execução via Docker
+
+Existe um [`Dockerfile`](./Dockerfile) que monta um container com toda a configuração de ambiente necessária para rodar o módulo, e já vem munido do editor **Vim**. Para fazer a build, execute o seguinte comando.
+
+```shell
+$ docker build -t crawler_financeiro .
+```
+
+Para utilizar o módulo agora, basta executar:
+
+```shell
+$ docker run -it crawler_financeiro
+```
+
+Será exibida a mensagem de `help` do módulo e logo depois você entrará no `bash` do container. Agora, basta executar o módulo, conforme mostrado.
+
+```shell
+$ python -m crawler_financeiro
+```
+
+> Ao ser exibido o prompt `"Deseja visualizar o arquivo em um editor de texto? (s/n)"` insira "s" e depois 1 para abrir o **Vim**.
+
+Para obter o arquivo `final_json.json` do container, basta sair do modo interativo e verificar o **id do container**. Depois, copiar o arquivo usando `docker cp`.
+
+```shell
+root@3f8851ddc2b3:/crawler# exit
+exit
+
+$ docker ps -a
+{CONTAINER_ID}  crawler_financeiro  "/bin/sh -c 'cd /cra…" ...
+...
+
+$ docker cp {CONTAINER_ID}:/crawler/final_json.json .
+```
+
+### Execução manual
 
 As dependências do projeto são geridas com **Pipenv**. Portanto, antes de tudo, garanta que tenha instalado.
 
@@ -16,20 +51,22 @@ As dependências do projeto são geridas com **Pipenv**. Portanto, antes de tudo
 $ pip install -U pipenv
 ```
 
-Também será necessário a engine de OCR (Optical Character Recognition) **Tesseract** para extrair o texto dos PDFs, uma vez que os mesmos (em maioria) são apenas escaneados.
+Certifique-se de ter instalado o navegador **Google Chrome** ou **Chromium** e o **ChromeDriver** ([download aqui](https://chromedriver.chromium.org/downloads)) referente à sua versão do navegador no PATH do sistema.
+
+Também será necessário instalar o **Poppler** para extrair as páginas dos arquivos PDF como imagens e a engine de OCR (Optical Character Recognition) **Tesseract** para extrair o texto destas imagens.
 
 ```shell
 # INSTALAÇÃO NO DEBIAN/UBUNTU
-$ sudo apt install imagemagick tesseract-ocr tesseract-ocr-eng
+$ sudo apt install poppler-utils imagemagick tesseract-ocr tesseract-ocr-eng
 
 # INSTALAÇÃO NO ARCH/MANJARO
-$ sudo pacman -S tesseract tesseract-data-eng
+$ sudo pacman -S poppler tesseract tesseract-data-eng
 
 # INSTALAÇÃO NO MAC OS
-$ brew install tesseract
+$ brew install poppler tesseract
 ```
 
-Agora, com o **Pipenv** e o **Tesseract** instalado na sua máquina, basta rodar os seguintes comandos.
+Agora, com o **Pipenv**, **Poppler** e o **Tesseract** instalados na sua máquina, basta rodar os seguintes comandos.
 
 ```shell
 $ pipenv install

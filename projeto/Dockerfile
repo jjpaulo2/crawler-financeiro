@@ -45,17 +45,19 @@ RUN CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-
     && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
     && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
 
-#  Copia os arquivos do projeto para dentro do container
-#  e instala as dependências.
+#  Indica o volume utilizado pelo container
+#  e o diretório de trabalho.
 
-COPY . /crawler
-RUN cd /crawler \
-    && python -m pip install -r requirements.txt
+VOLUME /crawler
+WORKDIR /crawler
 
 #  Script que será executado quando o container
-#  for executando em modo interativo.
+#  for inicializado.
 
-CMD cd /crawler \
+CMD echo "Instalando dependências do projeto..."\
+    && python -m pip install -r requirements.txt -q\
+    && echo "Dependências instaladas com sucesso!"\
+    && echo '' \
     && python -m crawler_financeiro --help \
     && echo '' \
     && bash

@@ -1,0 +1,8 @@
+services:
+  crawler:
+    container_name: crawler_financeiro
+    stdin_open: true
+    tty: true
+    build: '.'
+    volumes:
+      - '.:/crawler'
